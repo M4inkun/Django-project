@@ -13,7 +13,7 @@ class Women(models.Model):
         DRAFT = 0, 'Черновик'
         PUBLISHED = 1, 'Опубликовано'
     title = models.CharField(max_length=255, verbose_name='Заголовок')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='Слаг',
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='Slug',
                             validators=[
                                 MinLengthValidator(5, message='Минимум 5 символов'),
                                 MaxLengthValidator(100, message='Максимум 100 символов')
@@ -54,7 +54,6 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
 
     def get_absolute_url(self):
         return reverse('category', kwargs={'cat_slug': self.slug})
