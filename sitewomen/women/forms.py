@@ -25,7 +25,7 @@ class AddPostForm(forms.ModelForm):
 
     class Meta:
         model = Women
-        fields = ['title', 'slug', 'content', 'is_publisher', 'cat', 'tag', 'husband']
+        fields = ['title', 'slug', 'content', 'photo', 'is_publisher', 'cat', 'tag', 'husband']
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input'}),

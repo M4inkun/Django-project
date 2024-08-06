@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import redirect, reverse, render
 from django.template.defaultfilters import slugify
-from women.models import Women, Category, ModelTags
+from women.models import Women, Category, ModelTags, UploadFiles
 from women.forms import AddPostForm, UploadFileForm
 
 menu = [{'title': 'About', 'url_name': 'about'},
@@ -24,18 +24,18 @@ def index(request):
     return render(request, 'women/index.html', context=data)
 
 
-def handle_uploaded_file(f):
-    with open(f"sitewomen/uploads/{f.name}", "wb+") as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
+# def handle_uploaded_file(f):
+#     with open(f"sitewomen/uploads/{f.name}", "wb+") as destination:
+#         for chunk in f.chunks():
+#             destination.write(chunk)
 
 
 def about(request):
     if request.method == 'POST':
-        # handle_uploaded_file(request.FILES['file_upload'])
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(form.cleaned_data['file'])
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
     else:
         form = UploadFileForm()
     return render(request, 'women/about.html',
@@ -57,7 +57,7 @@ def show_post(request, post_slug):
 
 def addpage(request):
     if request.method == 'POST':
-        form = AddPostForm(request.POST)
+        form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             # print(form.cleaned_data)
             # try:
