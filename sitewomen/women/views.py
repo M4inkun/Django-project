@@ -3,8 +3,7 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import redirect, reverse, render
 from django.template.defaultfilters import slugify
 from women.models import Women, Category, ModelTags
-from women.forms import AddPostForm
-
+from women.forms import AddPostForm, UploadFileForm
 
 menu = [{'title': 'About', 'url_name': 'about'},
         {'title': 'Add page', 'url_name': 'addpage'},
@@ -25,8 +24,22 @@ def index(request):
     return render(request, 'women/index.html', context=data)
 
 
+def handle_uploaded_file(f):
+    with open(f"sitewomen/uploads/{f.name}", "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
 def about(request):
-    return render(request, 'women/about.html', {'title': 'About site', 'menu': menu})
+    if request.method == 'POST':
+        # handle_uploaded_file(request.FILES['file_upload'])
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(form.cleaned_data['file'])
+    else:
+        form = UploadFileForm()
+    return render(request, 'women/about.html',
+                  {'title': 'About site', 'menu': menu, 'form': form})
 
 
 def show_post(request, post_slug):
