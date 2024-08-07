@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import redirect, reverse, render
-from django.template.defaultfilters import slugify
+from django.views import View
+from django.views.generic import TemplateView
+
 from women.models import Women, Category, ModelTags, UploadFiles
 from women.forms import AddPostForm, UploadFileForm
 
@@ -15,14 +17,23 @@ menu = [{'title': 'About', 'url_name': 'about'},
 def index(request):
     posts = Women.published.all().select_related('cat')
 
-    data = {'title': 'Main page',
-            'menu': menu,
-            'posts': posts,
-            'cat_selected': 0,
+    data = {
+        'title': 'Main page',
+        'menu': menu,
+        'posts': posts,
+        'cat_selected': 0,
     }
 
     return render(request, 'women/index.html', context=data)
 
+class WomenHome(TemplateView):
+    template_name = 'women/index.html'
+    extra_context = {
+        'title': 'Main page',
+        'menu': menu,
+        'posts': Women.published.all().select_related('cat'),
+        'cat_selected': 0,
+    }
 
 # def handle_uploaded_file(f):
 #     with open(f"sitewomen/uploads/{f.name}", "wb+") as destination:
@@ -55,26 +66,43 @@ def show_post(request, post_slug):
     return render(request, 'women/post.html', data)
 
 
-def addpage(request):
-    if request.method == 'POST':
+# def addpage(request):
+#     if request.method == 'POST':
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # print(form.cleaned_data)
+#             # try:
+#             #     Women.objects.create(**form.cleaned_data)
+#             #     return redirect('home')
+#             # except:
+#             #     form.add_error(None, 'Ошибка добавления поста')
+#             form.save()
+#             return redirect('home')
+#     else:
+#         form = AddPostForm()
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'women/addpage.html', data)
+
+    def post(self, request):
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
-            # print(form.cleaned_data)
-            # try:
-            #     Women.objects.create(**form.cleaned_data)
-            #     return redirect('home')
-            # except:
-            #     form.add_error(None, 'Ошибка добавления поста')
             form.save()
             return redirect('home')
-    else:
-        form = AddPostForm()
-    data = {
-        'menu': menu,
-        'title': 'Добавление статьи',
-        'form': form
-    }
-    return render(request, 'women/addpage.html', data)
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'women/addpage.html', data)
 
 
 def contact(request):
@@ -109,6 +137,7 @@ def show_tag_postlist(request, tag_slug):
     }
 
     return render(request, 'women/index.html', context=data)
+
 
 def page_not_found(request, exception):
     return HttpResponseNotFound(f'<h1>Page not found</h1>')
