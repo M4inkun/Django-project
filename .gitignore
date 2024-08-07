@@ -2,3 +2,4 @@
 /djvenv/
 /.DS_Store/
 *.sqlite3
+/media/
