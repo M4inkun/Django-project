@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import redirect, reverse, render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView
 from women.models import Women, Category, ModelTags, UploadFiles
 from women.forms import AddPostForm, UploadFileForm
 
@@ -103,20 +103,28 @@ class ShowPost(DetailView):
 #         form = AddPostForm()
 
 
-class AddPage(FormView):
+class AddPage(CreateView):
     form_class = AddPostForm
+    # model = Women
+    # fields = ['title', 'slug', 'content', 'is_publisher', 'cat']
     template_name = 'women/addpage.html'
-    success_url = reverse_lazy('home')
+    # success_url = reverse_lazy('home')
     extra_context = {
         'menu': menu,
         'title': 'Добавление статьи',
     }
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
 
-
+class UpdatePage(UpdateView):
+    # form_class = AddPostForm
+    model = Women
+    fields = ['title', 'content', 'photo', 'is_publisher', 'cat']
+    template_name = 'women/addpage.html'
+    success_url = reverse_lazy('home')
+    extra_context = {
+        'menu': menu,
+        'title': 'Редактирование статьи',
+    }
 # class AddPage(View):
 #     def get(self, request):
 #         form = AddPostForm()
